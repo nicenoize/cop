@@ -1,0 +1,20 @@
+# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+# platform: linux-64
+RUN apt-get install cRUN aptum=0.2.0=0
+RUN apt-get install cudatoolkit=10.2.89=hfd86e86_1
+RUN apt-get install lime=0.2.0.0=pypi_0
+RUN apt-get install matplotlib=3.2.1=pypi_0
+RUN apt-get install matplotlib-base=3.1.3=py38hef1b27d_0
+RUN apt-get install nltk=3.5=pypi_0
+RUN apt-get install numpy=1.18.1=py38h4f9e942_0
+RUN apt-get install numpy-base=1.18.1=py38hde5b4d6_1
+RUN apt-get install python-papi=5.5.1.2=pypi_0
+RUN apt-get install scikit-image=0.16.2=pypi_0
+RUN apt-get install scikit-learn=0.22.2.post1=pypi_0
+RUN apt-get install scipy=1.4.1=pypi_0
+RUN apt-get install sentencepiece=0.1.86=pypi_0
+RUN apt-get install tokenizers=0.5.2=pypi_0
+RUN apt-get install torchvision=0.6.0=py38_cu102
+RUN apt-get install tqdm=4.45.0=pypi_0
+RUN apt-get install transformers=2.8.0=pypi_0

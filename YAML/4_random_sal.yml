@@ -1,0 +1,47 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: random_sal
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app: xai-benchmark
+    spec:
+      restartPolicy: "Never"
+      containers:
+        - name: xai-benchmark
+          image: registry.datexis.com/bvanaken-shk/xai-benchmark:v1.0
+          imagePullPolicy: "Always"
+          ports:
+            - name: client-port
+              containerPort: 6006
+          resources:
+            requests:
+              nvidia.com/gpu: 1
+              memory: "4Gi"
+              cpu: "500m"
+            limits:
+              nvidia.com/gpu: 1 # requesting 1 GPU
+              memory: 28Gi
+              cpu: "4000m"
+          volumeMounts:
+            - name: outcome-paper-models-pvc
+              mountPath: "/xai-benchmark"
+          env:
+          - name: PYTHONUNBUFFERED
+            value: "0"
+          command:
+            - /bin/sh
+            - "-c"
+            - "python generate_random_sal.py --model_path 'xai-benchmark/saliency/checkpoint_transformers.pt_lime' --output_dir '/xai-benchmark/saliency/trans_1_rand' --labels  3"
+            - "python generate_random_sal.py --model_path 'xai-benchmark/saliency/checkpoint_transformers.pt_shap' --output_dir '/xai-benchmark/saliency/trans_1_rand' --labels  3"
+      nodeSelector:
+        gpu: v100
+      imagePullSecrets:
+        - name:  private-registry-auth
+      volumes:
+      - name: outcome-paper-models-pvc
+        persistentVolumeClaim:
+          claimName: outcome-paper-models-pvc

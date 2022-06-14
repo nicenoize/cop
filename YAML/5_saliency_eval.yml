@@ -1,0 +1,48 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: saliency-eval
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app: saliency-eval
+    spec:
+      restartPolicy: "Never"
+      containers:
+        - name: xai-benchmark
+          image: registry.datexis.com/bvanaken-shk/xai-benchmark:v1.0
+          imagePullPolicy: "Always"
+          ports:
+            - name: client-port
+              containerPort: 6006
+          resources:
+            requests:
+              nvidia.com/gpu: 1
+              memory: "4Gi"
+              cpu: "500m"
+            limits:
+              nvidia.com/gpu: 1 # requesting 1 GPU
+              memory: 28Gi
+              cpu: "4000m"
+          volumeMounts:
+            - name: outcome-paper-models-pvc
+              mountPath: "/xai-benchmark"
+          env:
+          - name: PYTHONUNBUFFERED
+            value: "0"
+          command:
+            - /bin/sh
+            - "-c"
+            - "python '/xai-benchmark/faithfulness.py' --saliency shap --test_saliency_dir data/saliency/snli/cnn --models_dir data/models/snli/cnn/ --dataset snli --dataset_dir data/e-SNLI/dataset/ --model cnn"
+            - "python '/xai-benchmark/consistency_precompute.py' --model_p not --dataset snli --dataset_dir data/e-SNLI/dataset/ --model cnn --model_dir_trained '/xai-benchmark/'  --model_dir_random '/xai-benchmark/' --gpu"
+            - "python '/xai-benchmark/consistency_rats.py' --saliencies shap lime occlusion_none sal_mean sal_l2 inputx_mean inputx_l2 guided_mean guided_l2 --dataset snli --dataset_dir data/e-SNLI/dataset/ --model cnn --model_dir_trained '/xai-benchmark/'  --model_dir_random '/xai-benchmark/' --saliency_dir_trained '/xai-benchmark/saliency' --saliency_dir_random '/xai-benchmark/saliency' --gpu"
+      nodeSelector:
+        gpu: v100
+      imagePullSecrets:
+        - name:  private-registry-auth
+      volumes:
+      - name: outcome-paper-models-pvc
+        persistentVolumeClaim:
+          claimName: outcome-paper-models-pvc

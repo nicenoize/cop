@@ -35,8 +35,8 @@ spec:
           command:
             - /bin/sh
             - "-c"
-            - "python train_transformers.py --lr 2e-5 --model_path '/xai-benchmark/checkpoint_train.pt' --gpu"
-            - "python train_transformers.py --lr 2e-5 --model_path '/xai-benchmark/checkpoint_random.pt' --gpu --init_only"
+            - "python train_transformers.py --lr 2e-5 --model_path '/xai-benchmark/data/models/transformer/transformer_snli_2e5_1' --epochs 4 --gpu"
+            - "python train_transformers.py --lr 2e-5 --model_path '/xai-benchmark/data/models/transformer/random_transformer_snli_2e5_1' --gpu --init_only"
       nodeSelector:
         gpu: v100
       imagePullSecrets:

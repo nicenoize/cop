@@ -1,17 +1,17 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: randomtransformer
+  name: interpret-grads-random
 spec:
   backoffLimit: 0
   template:
     metadata:
       labels:
-        app: randomtransformer
+        app: interpret-grads-random
     spec:
       restartPolicy: "Never"
       containers:
-        - name: randomtransformer
+        - name: interpret-grads-random
           image: registry.datexis.com/bvanaken-shk/xai-benchmark:v1.0
           imagePullPolicy: "Always"
           ports:
@@ -35,7 +35,7 @@ spec:
           command:
             - /bin/sh
             - "-c"
-            - "python train_transformers.py --lr 2e-5 --model_path '/xai-benchmark/checkpoint_random.pt' --gpu --init_only"
+            - "python interpret_grads_occ.py --models_dir /xai-benchmark/data/models/snli/random_transformer/transformer_snli_2e5_1.pt --output_dir '/xai-benchmark/data/saliency_random_transformer' --model trans --dataset snli --no_time --dataset_dir data/e-SNLI/dataset --saliency guided sal inputx occlusion --gpu"
       nodeSelector:
         gpu: v100
       imagePullSecrets:

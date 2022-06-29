@@ -5,6 +5,7 @@ import random
 from argparse import Namespace
 from functools import partial
 
+import json
 import numpy as np
 import torch
 from sklearn.metrics import auc
@@ -57,6 +58,10 @@ if __name__ == "__main__":
                         type=str)
     parser.add_argument("--model", help="Type of model",
                         choices=['trans', 'lstm', 'cnn'])
+    parser.add_argument("--output_dir",
+                        help="Path where the results will be stored",
+                        default='saliency_eval',
+                        type=str)
 
     args = parser.parse_args()
 
@@ -113,7 +118,17 @@ if __name__ == "__main__":
             results = eval_fn(model, test_dl, model_args.labels)
             model_scores.append(results[2])
 
-        print(thresholds, model_scores)
+        print(thresholds, model_scores) 
         aucs.append(auc(thresholds, model_scores))
 
     print(f'{np.mean(aucs):.2f} ($\pm${np.std(aucs):.2f})')
+    print('Serializing...', flush=True)
+    with open(os.path.join('/xai-benchmark/data/saliency_eval/aucs', args.saliency, ""), 'w') as out:
+        out.write(json.dumps({'aucs': aucs}) + '\n')
+        out.flush()
+    with open(os.path.join('/xai-benchmark/data/saliency_eval/tresholds', args.saliency, ""), 'w') as out:
+        out.write(json.dumps({'tresholds': thresholds}) + '\n')
+        out.flush()
+    with open(os.path.join('/xai-benchmark/data/saliency_eval/model_scores', args.saliency, ""), 'w') as out:
+        out.write(json.dumps({'model_scores': model_scores}) + '\n')
+        out.flush()
